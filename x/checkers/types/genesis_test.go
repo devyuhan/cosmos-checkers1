@@ -11,7 +11,7 @@ func TestDefaultGenesisIsCorrect(t *testing.T) {
 	require.EqualValues(t,
 		&types.GenesisState{
 			Params:         types.Params{},
-			NextGame:       &types.NextGame{"", uint64(0)},
+			NextGame:       &types.NextGame{"", uint64(0), "", ""},
 			StoredGameList: []types.StoredGame{},
 		},
 		types.DefaultGenesis())
