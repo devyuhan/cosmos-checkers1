@@ -24,7 +24,7 @@ func setupMsgServerCreateGame(t testing.TB) (types.MsgServer, keeper.Keeper, con
 }
 
 func TestCreateGame(t *testing.T) {
-	msgServer, context := setupMsgServer(t)
+	msgServer, _, context := setupMsgServerCreateGame(t)
 	createResponse, err := msgServer.CreateGame(context, &types.MsgCreateGame{
 		Creator: alice,
 		Red:     bob,
@@ -32,7 +32,7 @@ func TestCreateGame(t *testing.T) {
 	})
 	require.Nil(t, err)
 	require.EqualValues(t, types.MsgCreateGameResponse{
-		IdValue: "", // TODO: update with a proper value when updated
+		IdValue: "1", // TODO: update with a proper value when updated
 	}, *createResponse)
 }
 
