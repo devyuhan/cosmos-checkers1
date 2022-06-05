@@ -10,6 +10,7 @@ import (
 
 func TestRejectSecondGameHasSavedFifo(t *testing.T) {
 	msgServer, keeper, context := setupMsgServerWithOneGameForRejectGame(t)
+	ctx := sdk.UnwrapSDKContext(context)
 	msgServer.CreateGame(context, &types.MsgCreateGame{
 		Creator: bob,
 		Red:     carol,
@@ -39,11 +40,13 @@ func TestRejectSecondGameHasSavedFifo(t *testing.T) {
 		MoveCount: uint64(0),
 		BeforeId:  "-1",
 		AfterId:   "-1",
+		Deadline:  types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game2)
 }
 
 func TestRejectMiddleGameHasSavedFifo(t *testing.T) {
 	msgServer, keeper, context := setupMsgServerWithOneGameForRejectGame(t)
+	ctx := sdk.UnwrapSDKContext(context)
 	msgServer.CreateGame(context, &types.MsgCreateGame{
 		Creator: bob,
 		Red:     carol,
@@ -78,6 +81,7 @@ func TestRejectMiddleGameHasSavedFifo(t *testing.T) {
 		MoveCount: uint64(0),
 		BeforeId:  "-1",
 		AfterId:   "3",
+		Deadline:  types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game1)
 	game3, found3 := keeper.GetStoredGame(sdk.UnwrapSDKContext(context), "3")
 	require.True(t, found3)
@@ -91,5 +95,6 @@ func TestRejectMiddleGameHasSavedFifo(t *testing.T) {
 		MoveCount: uint64(0),
 		BeforeId:  "1",
 		AfterId:   "-1",
+		Deadline:  types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game3)
 }

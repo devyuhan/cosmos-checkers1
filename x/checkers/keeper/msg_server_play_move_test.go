@@ -70,6 +70,7 @@ func TestPlayMoveSameBlackRed(t *testing.T) {
 
 func TestPlayMoveSavedGame(t *testing.T) {
 	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
+	ctx := sdk.UnwrapSDKContext(context)
 	msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator: carol,
 		IdValue: "1",
@@ -98,6 +99,7 @@ func TestPlayMoveSavedGame(t *testing.T) {
 		MoveCount: 1,
 		BeforeId:  "-1",
 		AfterId:   "-1",
+		Deadline:  types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game1)
 }
 
@@ -185,6 +187,7 @@ func TestPlayMove2(t *testing.T) {
 
 func TestPlayMove2SavedGame(t *testing.T) {
 	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
+	ctx := sdk.UnwrapSDKContext(context)
 	msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator: carol,
 		IdValue: "1",
@@ -221,6 +224,7 @@ func TestPlayMove2SavedGame(t *testing.T) {
 		MoveCount: 2,
 		BeforeId:  "-1",
 		AfterId:   "-1",
+		Deadline:  types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game1)
 }
 
@@ -261,6 +265,7 @@ func TestPlayMove3(t *testing.T) {
 
 func TestPlayMove3SavedGame(t *testing.T) {
 	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
+	ctx := sdk.UnwrapSDKContext(context)
 	msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator: carol,
 		IdValue: "1",
@@ -305,5 +310,6 @@ func TestPlayMove3SavedGame(t *testing.T) {
 		MoveCount: 3,
 		BeforeId:  "-1",
 		AfterId:   "-1",
+		Deadline:  types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game1)
 }
