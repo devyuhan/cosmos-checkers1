@@ -75,6 +75,7 @@ func TestRejectGameByBlackNoMoveEmitted(t *testing.T) {
 	event := events[0]
 	require.Equal(t, event.Type, "message")
 	require.EqualValues(t, []sdk.Attribute{
+		{Key: "Wager", Value: "0"},
 		{Key: "module", Value: "checkers"},
 		{Key: "action", Value: "GameRejected"},
 		{Key: "Creator", Value: carol},
@@ -123,6 +124,7 @@ func TestRejectGameByRedNoMoveEmitted(t *testing.T) {
 	event := events[0]
 	require.Equal(t, event.Type, "message")
 	require.EqualValues(t, []sdk.Attribute{
+		{Key: "Wager", Value: "0"},
 		{Key: "module", Value: "checkers"},
 		{Key: "action", Value: "GameRejected"},
 		{Key: "Creator", Value: bob},
