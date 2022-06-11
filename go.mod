@@ -14,6 +14,7 @@ require (
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
+	github.com/tendermint/spm v0.1.8
 	github.com/tendermint/spn v0.2.1-0.20220511154430-aeab7a5b2bc0
 	github.com/tendermint/tendermint v0.34.19
 	github.com/tendermint/tm-db v0.6.7

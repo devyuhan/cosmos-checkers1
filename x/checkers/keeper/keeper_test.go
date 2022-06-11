@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
@@ -30,6 +31,7 @@ func setupKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 	registry := codectypes.NewInterfaceRegistry()
 	ps := paramtypes.Subspace{}
 	keeper := keeper.NewKeeper(
+		*new(bankkeeper.Keeper),
 		codec.NewProtoCodec(registry),
 		storeKey,
 		memStoreKey,
