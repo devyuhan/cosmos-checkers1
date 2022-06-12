@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/alice/checkers/x/checkers/types"
@@ -180,8 +181,8 @@ func (suite *IntegrationTestSuite) TestForfeitPlayedOnce() {
 
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 4)
-	forfeitEvent := events[0]
-	suite.Require().Equal(forfeitEvent.Type, "coin_received")
+	forfeitEvent := events[2]
+	suite.Require().Equal(forfeitEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: checkersModuleAddress},
 		{Key: "module", Value: "checkers"},
@@ -190,7 +191,7 @@ func (suite *IntegrationTestSuite) TestForfeitPlayedOnce() {
 		{Key: "Winner", Value: "*"},
 	}, forfeitEvent.Attributes[createEventCount+playEventCountFirst:])
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "recipient", Value: carol},
@@ -244,8 +245,8 @@ func (suite *IntegrationTestSuite) TestForfeitOlderPlayedOnce() {
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 4)
 
-	forfeitEvent := events[0]
-	suite.Require().Equal(forfeitEvent.Type, "coin_received")
+	forfeitEvent := events[2]
+	suite.Require().Equal(forfeitEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: checkersModuleAddress},
 		{Key: "module", Value: "checkers"},
@@ -254,7 +255,7 @@ func (suite *IntegrationTestSuite) TestForfeitOlderPlayedOnce() {
 		{Key: "Winner", Value: "*"},
 	}, forfeitEvent.Attributes[2*createEventCount+playEventCountFirst:])
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "recipient", Value: carol},
@@ -291,8 +292,8 @@ func (suite *IntegrationTestSuite) TestForfeitOlderPlayedOncePaidEvenZero() {
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 4)
 
-	forfeitEvent := events[0]
-	suite.Require().Equal(forfeitEvent.Type, "coin_received")
+	forfeitEvent := events[2]
+	suite.Require().Equal(forfeitEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: checkersModuleAddress},
 		{Key: "module", Value: "checkers"},
@@ -301,7 +302,7 @@ func (suite *IntegrationTestSuite) TestForfeitOlderPlayedOncePaidEvenZero() {
 		{Key: "Winner", Value: "*"},
 	}, forfeitEvent.Attributes[createEventCount+playEventCountFirst:])
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "recipient", Value: carol},
@@ -371,9 +372,15 @@ func (suite *IntegrationTestSuite) TestForfeit2OldestPlayedOnceIn1Call() {
 	}, nextGame)
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 4)
+	fmt.Println("events", events)
 
-	forfeitEvent := events[0]
-	suite.Require().Equal(forfeitEvent.Type, "coin_received")
+	forfeitEvent := events[2]
+	suite.Require().Equal(forfeitEvent.Type, "message")
+	fmt.Println("forfeitEvent:", forfeitEvent)
+	fmt.Println("forfeitEvent.Attributes:", forfeitEvent.Attributes)
+	fmt.Println("createEventCount:", createEventCount)
+	fmt.Println("playEventCountFirst:", playEventCountFirst)
+	fmt.Println("3*createEventCount+2*playEventCountFirst:", 3*createEventCount+2*playEventCountFirst)
 	forfeitAttributes := forfeitEvent.Attributes[3*createEventCount+2*playEventCountFirst:]
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: checkersModuleAddress},
@@ -391,7 +398,7 @@ func (suite *IntegrationTestSuite) TestForfeit2OldestPlayedOnceIn1Call() {
 		{Key: "Winner", Value: "*"},
 	}, forfeitAttributes)
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	transferAttributes := transferEvent.Attributes[2*transferEventCount:]
 	suite.Require().EqualValues([]sdk.Attribute{
@@ -466,7 +473,7 @@ func (suite *IntegrationTestSuite) TestForfeitPlayedTwice() {
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 2)
 
-	forfeitEvent := events[0]
+	forfeitEvent := events[2]
 	suite.Require().Equal(forfeitEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: checkersModuleAddress},
@@ -476,7 +483,7 @@ func (suite *IntegrationTestSuite) TestForfeitPlayedTwice() {
 		{Key: "Winner", Value: "r"},
 	}, forfeitEvent.Attributes[createEventCount+2*playEventCountFirst:])
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "recipient", Value: bob},
@@ -550,7 +557,7 @@ func (suite *IntegrationTestSuite) TestForfeitOlderPlayedTwice() {
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 2)
 
-	forfeitEvent := events[0]
+	forfeitEvent := events[2]
 	suite.Require().Equal(forfeitEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: checkersModuleAddress},
@@ -560,7 +567,7 @@ func (suite *IntegrationTestSuite) TestForfeitOlderPlayedTwice() {
 		{Key: "Winner", Value: "r"},
 	}, forfeitEvent.Attributes[2*createEventCount+2*playEventCountFirst:])
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "recipient", Value: bob},
@@ -608,7 +615,7 @@ func (suite *IntegrationTestSuite) TestForfeitOlderPlayedTwicePaidEvenZero() {
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 2)
 
-	forfeitEvent := events[0]
+	forfeitEvent := events[2]
 	suite.Require().Equal(forfeitEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: checkersModuleAddress},
@@ -618,7 +625,7 @@ func (suite *IntegrationTestSuite) TestForfeitOlderPlayedTwicePaidEvenZero() {
 		{Key: "Winner", Value: "r"},
 	}, forfeitEvent.Attributes[createEventCount+2*playEventCountFirst:])
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "recipient", Value: bob},
@@ -739,7 +746,7 @@ func (suite *IntegrationTestSuite) TestForfeit2OldestPlayedTwiceIn1Call() {
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 2)
 
-	forfeitEvent := events[0]
+	forfeitEvent := events[2]
 	suite.Require().Equal(forfeitEvent.Type, "message")
 	forfeitAttributes := forfeitEvent.Attributes[3*createEventCount+4*playEventCountFirst:]
 	suite.Require().EqualValues([]sdk.Attribute{
@@ -758,7 +765,7 @@ func (suite *IntegrationTestSuite) TestForfeit2OldestPlayedTwiceIn1Call() {
 		{Key: "Winner", Value: "r"},
 	}, forfeitAttributes)
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	transferAttributes := transferEvent.Attributes[4*transferEventCount:]
 	suite.Require().EqualValues([]sdk.Attribute{

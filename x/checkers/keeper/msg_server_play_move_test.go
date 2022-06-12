@@ -133,8 +133,8 @@ func (suite *IntegrationTestSuite) TestPlayMovePlayerPaidEvenZero() {
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 4)
 
-	playEvent := events[0]
-	suite.Require().Equal(playEvent.Type, "coin_received")
+	playEvent := events[2]
+	suite.Require().Equal(playEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: carol},
 		{Key: "module", Value: "checkers"},
@@ -143,10 +143,10 @@ func (suite *IntegrationTestSuite) TestPlayMovePlayerPaidEvenZero() {
 		{Key: "IdValue", Value: "1"},
 		{Key: "CapturedX", Value: "-1"},
 		{Key: "CapturedY", Value: "-1"},
-		{Key: "Winner", Value: "*"},
+		{Key: "Winner", Value: "NO_PLAYER"},
 	}, playEvent.Attributes[createEventCount:])
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "recipient", Value: checkersModuleAddress},
@@ -287,8 +287,8 @@ func (suite *IntegrationTestSuite) TestPlayMoveEmitted() {
 	events := sdk.StringifyEvents(suite.ctx.EventManager().ABCIEvents())
 	suite.Require().Len(events, 4)
 
-	playEvent := events[0]
-	suite.Require().Equal(playEvent.Type, "coin_received")
+	playEvent := events[2]
+	suite.Require().Equal(playEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "sender", Value: carol},
 		{Key: "module", Value: "checkers"},
@@ -297,10 +297,10 @@ func (suite *IntegrationTestSuite) TestPlayMoveEmitted() {
 		{Key: "IdValue", Value: "1"},
 		{Key: "CapturedX", Value: "-1"},
 		{Key: "CapturedY", Value: "-1"},
-		{Key: "Winner", Value: "*"},
+		{Key: "Winner", Value: "NO_PLAYER"},
 	}, playEvent.Attributes[createEventCount:])
 
-	transferEvent := events[1]
+	transferEvent := events[3]
 	suite.Require().Equal(transferEvent.Type, "transfer")
 	suite.Require().EqualValues([]sdk.Attribute{
 		{Key: "recipient", Value: checkersModuleAddress},
