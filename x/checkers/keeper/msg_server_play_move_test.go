@@ -15,6 +15,7 @@ func (suite *IntegrationTestSuite) setupSuiteWithOneGameForPlayMove() {
 		Red:     bob,
 		Black:   carol,
 		Wager:   11,
+		Token:   sdk.DefaultBondDenom,
 	})
 }
 
@@ -46,6 +47,7 @@ func (suite *IntegrationTestSuite) TestPlayMoveSameBlackRed() {
 		Red:     bob,
 		Black:   bob,
 		Wager:   11,
+		Token:   sdk.DefaultBondDenom,
 	})
 	playMoveResponse, err := suite.msgServer.PlayMove(goCtx, &types.MsgPlayMove{
 		Creator: bob,
@@ -85,6 +87,42 @@ func (suite *IntegrationTestSuite) TestPlayMovePlayerPaid() {
 	suite.RequireBankBalance(11, checkersModuleAddress)
 }
 
+func (suite *IntegrationTestSuite) TestPlayMovePlayerPaidForeignToken() {
+	suite.setupSuiteWithOneGameForPlayMove()
+	goCtx := sdk.WrapSDKContext(suite.ctx)
+	suite.msgServer.CreateGame(goCtx, &types.MsgCreateGame{
+		Creator: alice,
+		Red:     bob,
+		Black:   carol,
+		Wager:   1,
+		Token:   foreignToken,
+	})
+	suite.RequireBankBalance(balAlice, alice)
+	suite.RequireBankBalance(balBob, bob)
+	suite.RequireBankBalance(balCarol, carol)
+	suite.RequireBankBalance(0, checkersModuleAddress)
+	suite.RequireBankBalanceIn(balTokenAlice, alice, foreignToken)
+	suite.RequireBankBalanceIn(balTokenBob, bob, foreignToken)
+	suite.RequireBankBalanceIn(balTokenCarol, carol, foreignToken)
+	suite.RequireBankBalanceIn(0, checkersModuleAddress, foreignToken)
+	suite.msgServer.PlayMove(goCtx, &types.MsgPlayMove{
+		Creator: carol,
+		IdValue: "2",
+		FromX:   1,
+		FromY:   2,
+		ToX:     2,
+		ToY:     3,
+	})
+	suite.RequireBankBalance(balAlice, alice)
+	suite.RequireBankBalance(balBob, bob)
+	suite.RequireBankBalance(balCarol, carol)
+	suite.RequireBankBalance(0, checkersModuleAddress)
+	suite.RequireBankBalanceIn(balTokenAlice, alice, foreignToken)
+	suite.RequireBankBalanceIn(balTokenBob, bob, foreignToken)
+	suite.RequireBankBalanceIn(balTokenCarol-1, carol, foreignToken)
+	suite.RequireBankBalanceIn(1, checkersModuleAddress, foreignToken)
+}
+
 func (suite *IntegrationTestSuite) TestPlayMoveConsumedGas() {
 	suite.setupSuiteWithOneGameForPlayMove()
 	goCtx := sdk.WrapSDKContext(suite.ctx)
@@ -98,10 +136,8 @@ func (suite *IntegrationTestSuite) TestPlayMoveConsumedGas() {
 		ToY:     3,
 	})
 	gasAfter := suite.ctx.GasMeter().GasConsumed()
-	fmt.Println("gasBefore:", gasBefore, "gasAfter:", gasAfter)
-	fmt.Println("gasAfter-gasBefore:", gasAfter-gasBefore)
-	fmt.Println("uint64 33_230+10:", uint64(33_230+10)) //37263
-	suite.Require().Equal(uint64(37_253+10), gasAfter-gasBefore)
+	fmt.Println("139- gasAfter-gasBefore", gasAfter-gasBefore)
+	suite.Require().Equal(uint64(37_484+10), gasAfter-gasBefore)
 }
 
 func (suite *IntegrationTestSuite) TestPlayMovePlayerPaidEvenZero() {
@@ -112,6 +148,7 @@ func (suite *IntegrationTestSuite) TestPlayMovePlayerPaidEvenZero() {
 		Red:     bob,
 		Black:   carol,
 		Wager:   0,
+		Token:   sdk.DefaultBondDenom,
 	})
 	suite.RequireBankBalance(balAlice, alice)
 	suite.RequireBankBalance(balBob, bob)
@@ -136,6 +173,7 @@ func (suite *IntegrationTestSuite) TestPlayMovePlayerPaidEvenZero() {
 	playEvent := events[2]
 	suite.Require().Equal(playEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
+		{Key: "Token", Value: "stake"},
 		{Key: "sender", Value: carol},
 		{Key: "module", Value: "checkers"},
 		{Key: "action", Value: "MovePlayed"},
@@ -163,6 +201,7 @@ func (suite *IntegrationTestSuite) TestPlayMoveGasConsumedNoWager() {
 		Red:     bob,
 		Black:   carol,
 		Wager:   0,
+		Token:   sdk.DefaultBondDenom,
 	})
 	gasBefore := suite.ctx.GasMeter().GasConsumed()
 	suite.msgServer.PlayMove(goCtx, &types.MsgPlayMove{
@@ -174,10 +213,8 @@ func (suite *IntegrationTestSuite) TestPlayMoveGasConsumedNoWager() {
 		ToY:     3,
 	})
 	gasAfter := suite.ctx.GasMeter().GasConsumed()
-	fmt.Println("gasBefore:", gasBefore, "gasAfter:", gasAfter)
-	fmt.Println("gasAfter-gasBefore:", gasAfter-gasBefore)
-	fmt.Println("uint64 33_230+10:", uint64(33_230+10)) //28554
-	suite.Require().Equal(uint64(28_544+10), gasAfter-gasBefore)
+	fmt.Println("000000000000000000--gasAfter-gasBefore", gasAfter-gasBefore)
+	suite.Require().Equal(uint64(28_775+10), gasAfter-gasBefore)
 }
 
 func (suite *IntegrationTestSuite) TestPlayMoveCannotPayFails() {
@@ -188,6 +225,7 @@ func (suite *IntegrationTestSuite) TestPlayMoveCannotPayFails() {
 		Red:     bob,
 		Black:   carol,
 		Wager:   balCarol + 1,
+		Token:   sdk.DefaultBondDenom,
 	})
 	suite.RequireBankBalance(balAlice, alice)
 	suite.RequireBankBalance(balBob, bob)
@@ -240,6 +278,7 @@ func (suite *IntegrationTestSuite) TestPlayMoveSavedGame() {
 		Deadline:  types.FormatDeadline(suite.ctx.BlockTime().Add(types.MaxTurnDuration)),
 		Winner:    "*",
 		Wager:     11,
+		Token:     "stake",
 	}, game1)
 }
 
@@ -290,6 +329,7 @@ func (suite *IntegrationTestSuite) TestPlayMoveEmitted() {
 	playEvent := events[2]
 	suite.Require().Equal(playEvent.Type, "message")
 	suite.Require().EqualValues([]sdk.Attribute{
+		{Key: "Token", Value: "stake"},
 		{Key: "sender", Value: carol},
 		{Key: "module", Value: "checkers"},
 		{Key: "action", Value: "MovePlayed"},
@@ -374,6 +414,7 @@ func (suite *IntegrationTestSuite) TestPlayMove2CannotPayFails() {
 		Red:     carol,
 		Black:   bob,
 		Wager:   balCarol + 1,
+		Token:   sdk.DefaultBondDenom,
 	})
 	suite.RequireBankBalance(balAlice, alice)
 	suite.RequireBankBalance(balBob, bob)
@@ -442,6 +483,7 @@ func (suite *IntegrationTestSuite) TestPlayMove2SavedGame() {
 		Deadline:  types.FormatDeadline(suite.ctx.BlockTime().Add(types.MaxTurnDuration)),
 		Winner:    "*",
 		Wager:     11,
+		Token:     "stake",
 	}, game1)
 }
 
@@ -569,5 +611,6 @@ func (suite *IntegrationTestSuite) TestPlayMove3SavedGame() {
 		Deadline:  types.FormatDeadline(suite.ctx.BlockTime().Add(types.MaxTurnDuration)),
 		Winner:    "*",
 		Wager:     11,
+		Token:     "stake",
 	}, game1)
 }

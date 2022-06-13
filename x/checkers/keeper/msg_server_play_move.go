@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -80,7 +81,7 @@ func (k msgServer) PlayMove(goCtx context.Context, msg *types.MsgPlayMove) (*typ
 		k.Keeper.SendToFifoTail(ctx, &storedGame, &nextGame)
 	} else {
 		k.Keeper.RemoveFromFifo(ctx, &storedGame, &nextGame)
-
+		fmt.Println("storedGame", storedGame)
 		// Pay the winnings to the winner
 		k.Keeper.MustPayWinnings(ctx, &storedGame)
 	}
